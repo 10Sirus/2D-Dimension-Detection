@@ -1,83 +1,124 @@
+import cv2
+from google.colab.patches import cv2_imshow
+import numpy as np
+from matplotlib import pyplot as plt
+
+# Load the image
+image = cv2.imread('/content/tip (1).jpg')
 
 
+# Convert the image to grayscale
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-# def cal(ops):
+_, threshold = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY) 
+
+# Blur the image to reduce high frequency noise
+blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+# Perform edge detection
+edged = cv2.Canny(blurred, 30,150)
+
+# Find contours in the image
+contours, hierarchy = cv2.findContours(edged, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+
+# Iterate through each contour
+
+
+for k in contours:
+
+  length = cv2.arcLength(k, True)
+
+if length> yo :
+  yo= length
     
-#     if 1< len(ops)<=1000:
-#         new_list=[]
-#         x=0
-#         for i, value in enumerate(ops):
-#             # new_list.append(i)
-#             if type(value) is int:
-#                 new_list.append(value)
-#             elif value=='D':
-#                 new_list.append(new_list[i-x-2]*2)
-#             elif value == 'C':
-#                 del new_list[i-1]
-#                 x+=1
-#             elif value=='+':
-#                  new_list.append(new_list[i-x-2]+new_list[i-x-3])
-#             else:
-#                 print('wrong value')
-#     summ = sum(new_list)
-#     return summ
 
-# test=[5,2,'C','D','+']
-# print(cal(test))
 
-def cal(ops):
-    if 1< len(ops)<=1000:
-        new_list=[]
-        x=0
-        pointer = 0
-        for value in ops:
-            if type(value) is int:
-                new_list.append(value)
-            elif value=='D':
-                new_list.append(new_list[pointer-1]*2)
-            elif value == 'C':
-                del new_list[pointer-1]
-                pointer -= 2
-            elif value=='+':
-                 new_list.append(new_list[pointer-1]+new_list[pointer-2])
-            else:
-                print('wrong value')
-            pointer += 1
-        # for i, value in enumerate(ops):
-        #     # new_list.append(i)
-        #     if type(value) is int:
-        #         new_list.append(value)
-        #     elif value=='D':
-        #         new_list.append(new_list[i-x-2]*2)
-        #     elif value == 'C':
-        #         del new_list[i-1]
-        #         x+=1
-        #     elif value=='+':
-        #          new_list.append(new_list[i-x-2]+new_list[i-x-3])
-        #     else:
-        #         print('wrong value')
-    summ = sum(new_list)
-    return summ
-
-test=[5,2,'C','D','+']
-print(cal(test))
-# def reversing(s):
-#     lst=[]
-#     final_list=[]
-#     for l in s:
-#         if l.isalpha():
-#             lst.append(l)
-#     reverselst=lst[::-1]
-#     v=0
-#     for i in s:
-        
-#         if i.isalpha():
-#             final_list.append(reverselst[v])
-#             v+=1
-#         else:
-#             final_list.append(i)
+for c in contours:
+    # Approximate the contour as a polygon
+    approx = cv2.approxPolyDP(c, 0.01* cv2.arcLength(c, True), True)
+    
+  
+    # draws boundary of contours.
+    cv2.drawContours(image, [approx], 0, (0, 0, 255), 1) 
+  
+    # Used to flatten the array containing
+    # the co-ordinates of the vertices.
+    n = approx.ravel() 
+    i = 0
+    x=n[0]
+    y=n[1]
+  
+    for j in n :
+        if(i % 2 == 0):
+          if i >=1:
+         
+            b= n[i]
+            h= n[i+1]
             
-#     return ''.join(final_list)
+            x1= (b+x)/2
+            y1=(y+h)/2
+      
 
-# yo= ['a','b','-','z']
-# print(reversing(yo))
+            dist = math.hypot(b - x, h- y)
+            x = n[i]
+            y = n[i + 1]
+  
+            # String containing the co-ordinates.
+            string= str(round(dist*p, 2))
+
+            if len(approx) <= 10:
+                # text on remaining co-ordinates.
+               cv2.putText(image, string, (int(x1), int(y1)), 
+                          cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0)) 
+        i = i + 1
+
+    
+    length = cv2.arcLength(c, True)
+    
+    p= 66.6/yo
+
+    M = cv2.moments(c) 
+
+    if M['m00'] != 0.0: 
+
+        x = int(M['m10']/M['m00']) 
+
+        y = int(M['m01']/M['m00']) 
+    # Check the number of sides of the polygon
+    if len(approx) == 3:
+        # Triangle
+        shape = "triangle"
+    elif len(approx) == 4:
+        # Rectangle or square
+        # Check if the sides are approximately equal
+        (x, y, w, h) = cv2.boundingRect(approx)
+        aspect_ratio = w / float(h)
+        if aspect_ratio >= 0.95 and aspect_ratio <= 1.05:
+            shape = "square"
+     
+
+   else:
+            shape = "rectangle"
+    elif len(approx) == 5:
+        # Pentagon
+        shape = "pentagon"
+    elif len(approx) == 6:
+        # Hexagon
+        shape = "hexagon"
+    else:
+        # Circle
+        shape = "circle"
+    # Draw the contour and label the shape on the image
+    
+    cv2.putText(image, shape, (x, y), cv2.FONT_HERSHEY_SIMPLEX,
+                0.5, (100, 100, 0), 1)
+   
+    a= str(round(length*p, 2))
+    cv2.putText(image, a, (x,y + 15), cv2.FONT_HERSHEY_SIMPLEX,
+                0.5, (100, 100,0), 1)
+  
+
+# Show the image
+cv2_imshow(image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
